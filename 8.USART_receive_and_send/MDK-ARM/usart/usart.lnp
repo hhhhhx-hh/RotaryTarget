@@ -2,6 +2,7 @@
 "usart\startup_stm32f407xx.o"
 "usart\main.o"
 "usart\gpio.o"
+"usart\dma.o"
 "usart\tim.o"
 "usart\usart.o"
 "usart\stm32f4xx_it.o"

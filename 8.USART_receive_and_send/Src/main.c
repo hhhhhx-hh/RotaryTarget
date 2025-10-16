@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -48,6 +49,7 @@
 /* USER CODE BEGIN PV */
 char data_send[20] = "RoboMaster\r\n";
 extern uint8_t message[10];
+uint32_t PWM_duty[7] = {100, 100, 100, 50, 50, 50, 50};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,12 +61,6 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	HAL_UART_Transmit_IT(&huart6, message, 1);
-	HAL_UART_Receive_IT(&huart6, message, 1);
-}
 /* USER CODE END 0 */
 
 /**
@@ -96,9 +92,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_USART6_UART_Init();
   MX_TIM1_Init();
+  MX_TIM8_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
     
     HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
@@ -111,23 +110,44 @@ int main(void)
     __HAL_UART_ENABLE_IT(&huart6, UART_IT_RXNE);  //receive interrupt
     __HAL_UART_ENABLE_IT(&huart6, UART_IT_IDLE);  //idle interrupt
 
-	HAL_UART_Receive_IT(&huart6, message, 1);
+	//开启PWM通道
+    HAL_TIM_Base_Start(&htim1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+    HAL_TIM_Base_Start(&htim8);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
+	HAL_TIM_Base_Start(&htim5);
+	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_3);
+	
+	// 使用Ex函数，接收不定长数据
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, message, sizeof(message));
+	// 关闭DMA传输过半中断（HAL库默认开启，但我们只需要接收完成中断）
+	__HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);
+	
+	//Set_PWM_duty();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 2000);
+        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, 2000);
+        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_3, 2000);
+        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, 2000);
+        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, 2000);
+        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, 2000);
+        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, 2000);
+        HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-        //send data by usart
-        //���ڷ�������
-//        HAL_UART_Transmit(&huart1, (uint8_t *)data_send, 12, 100);
-//        HAL_Delay(100);
-//        HAL_UART_Transmit(&huart6, (uint8_t *)data_send, 12, 100);
-//        HAL_Delay(100);
-//	  HAL_UART_Receive(&huart6, message, 10, HAL_MAX_DELAY);
   }
   /* USER CODE END 3 */
 }
