@@ -866,12 +866,12 @@ ARM Macro Assembler    Page 14
   436 0000001C                 END
               00000000 
               00000000 
-Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
-interwork --depend=usart\startup_stm32f407xx.d -ousart\startup_stm32f407xx.o -I
-.\RTE\_usart -ID:\KEIL5\PACK\ARM\CMSIS\6.2.0\CMSIS\Core\Include --predefine="__
-MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 543" --predefine="STM32F40
-7xx SETA 1" --predefine="_RTE_ SETA 1" --list=startup_stm32f407xx.lst startup_s
-tm32f407xx.s
+Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M4.fp.sp 
+--depend=usart\startup_stm32f407xx.d -ousart\startup_stm32f407xx.o -I.\RTE\_usa
+rt -ID:\Keil_v5\Packs\ARM\CMSIS\6.2.0\CMSIS\Core\Include --predefine="__MICROLI
+B SETA 1" --predefine="__UVISION_VERSION SETA 539" --predefine="_RTE_ SETA 1" -
+-predefine="STM32F407xx SETA 1" --predefine="_RTE_ SETA 1" --list=startup_stm32
+f407xx.lst startup_stm32f407xx.s
 
 
 

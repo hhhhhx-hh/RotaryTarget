@@ -296,13 +296,28 @@ int16_t SetSepeedTarget(void)
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-	Flag = 0x01;
+	
     if (huart->Instance == USART1)
     {
 		if (message[0] == 0x3A)
 		{
-
-			if ((message[2] == 0x2E) || (message[3] == 0x2E) || (message[4] == 0x2E))
+			if(message[1] == 's')
+			{
+				SpeedTarget = 0;
+				HAL_UART_Transmit_DMA(&huart1, (uint8_t *)RxFlag, sizeof(RxFlag));
+			}
+			else if(message[1] == 'f')
+			{
+				SpeedTarget = 2000;
+				HAL_UART_Transmit_DMA(&huart1, (uint8_t *)RxFlag, sizeof(RxFlag));
+			}
+			else if(message[1] == 'z')
+			{
+				SpeedTarget = (message[2] - 0x30) * 1; 
+				SpeedTarget = SpeedTarget / 1000.0f * 2000;
+				HAL_UART_Transmit_DMA(&huart1, (uint8_t *)RxFlag, sizeof(RxFlag));
+			}
+			else if ((message[2] == 0x2E) || (message[3] == 0x2E) || (message[4] == 0x2E))
 			{
 				if (message[2] == 0x2E){FlagBit = 2;}
 				else if (message[3] == 0x2E){FlagBit = 3;}
@@ -314,7 +329,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 		
         HAL_UARTEx_ReceiveToIdle_DMA(&huart1, message, Size);
         __HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);
-		memset(message, 0x00, Size);
+		memset(message, 0xFF, Size);
+			Flag = 0x01;
 		}
 
     }
