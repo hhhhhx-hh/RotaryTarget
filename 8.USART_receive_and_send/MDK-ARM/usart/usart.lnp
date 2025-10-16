@@ -24,7 +24,7 @@
 "usart\stm32f4xx_hal.o"
 "usart\stm32f4xx_hal_exti.o"
 "usart\stm32f4xx_hal_uart.o"
---strict --scatter "usart\usart.sct"
+--library_type=microlib --strict --scatter "usart\usart.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "usart.map" -o usart\usart.axf

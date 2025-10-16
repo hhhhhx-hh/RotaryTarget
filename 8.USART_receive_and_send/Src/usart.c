@@ -22,8 +22,9 @@
 #include <stdio.h>
 #include <string.h>
 /* USER CODE BEGIN 0 */
-uint8_t message[100];
-uint32_t duty;
+uint8_t Flag = 0x00;
+uint8_t message[128];
+static char RxFlag[] = "RxOK\r\n"; 
 
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim5;
@@ -261,44 +262,55 @@ void USART6_IRQHandler(void)
 	HAL_UART_IRQHandler(&huart6);
 }
 
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-//{
-//	HAL_UART_Transmit_IT(&huart1, message, 4);
-//	duty = message[0]*1000 + message[2]*100+message[3]*10 + message[4];
-//	if(duty > 2000)
-//	{
-//		duty = 2000;
-//	}
-//	
-//	__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, duty);
-//	__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, duty);
-//	__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_3, duty);
-//	__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, duty);
-//	__HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, duty);
-//	__HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, duty);
-//	__HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, duty);
-//	__HAL_TIM_SetCompare(&htim5, TIM_CHANNEL_1, duty);
-//	__HAL_TIM_SetCompare(&htim5, TIM_CHANNEL_2, duty);
-//	__HAL_TIM_SetCompare(&htim5, TIM_CHANNEL_3, duty);
-//	
-//	HAL_UART_Receive_IT(&huart1, message, 4);
-//}
+int16_t SpeedTarget = 0x0000;
+static uint8_t FlagBit = 0x00;
+static void ParsData(void)
+{
+	
+	{
+		float tem = 000.0f;
+		if (FlagBit == 3)
+		{
+			SpeedTarget = (message[1] - 0x30) * 100 + (message[2] - 0x30) * 10 + (message[4] - 0x30) * 1; 
+			SpeedTarget = SpeedTarget / 1000.0f * 2000;
+		}
+		else 
+		{
+			SpeedTarget = 2000;
+		}
+		SpeedTarget = SpeedTarget > 2000 ? 2000 : SpeedTarget;
+		SpeedTarget = SpeedTarget < (-2) ? -2 : SpeedTarget;
+		
+	}	
+}
 
-// 不定长数据接收完成回调函数
+int16_t SetSepeedTarget(void)
+{
+	return SpeedTarget;
+}
+
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
+	Flag = 0x01;
     if (huart->Instance == USART1)
     {
-        // 使用DMA将接收到的数据发送5回去
-        HAL_UART_Transmit_DMA(&huart1, message, Size);
+		if (message[0] == 0x3A)
+		{
+
+		if ((message[3] == 0x2E) || (message[4] == 0x2E))
+		{
+			if (message[3] == 0x2E){FlagBit = 3;}
+			else {FlagBit = 4;}
+			HAL_UART_Transmit_DMA(&huart1, (uint8_t *)RxFlag, sizeof(RxFlag));
+			
+			ParsData();
+		}
 		
-		uint8_t data = message[3];
-		memset(message, 0x00, Size);
-		
-        // 重新启动接收，使用Ex函数，接收不定长数据
-        HAL_UARTEx_ReceiveToIdle_DMA(&huart1, message, sizeof(message));
-        // 关闭DMA传输过半中断（HAL库默认开启，但我们只需要接收完成中断）
+        HAL_UARTEx_ReceiveToIdle_DMA(&huart1, message, Size);
         __HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);
+		memset(message, 0x00, Size);
+		}
+
     }
 }
 /* USER CODE END 1 */

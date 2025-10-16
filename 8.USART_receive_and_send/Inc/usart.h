@@ -44,7 +44,7 @@ void MX_USART1_UART_Init(void);
 void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+int16_t SetSepeedTarget(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

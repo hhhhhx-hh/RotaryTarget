@@ -47,8 +47,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-char data_send[20] = "RoboMaster\r\n";
-extern uint8_t message[10];
+extern uint8_t Flag;
+extern uint8_t message[128];
 uint32_t PWM_duty[7] = {100, 100, 100, 50, 50, 50, 50};
 /* USER CODE END PV */
 
@@ -60,7 +60,10 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void LimitAmplitude(void)
+{
+	
+}
 /* USER CODE END 0 */
 
 /**
@@ -130,21 +133,20 @@ int main(void)
 	// 关闭DMA传输过半中断（HAL库默认开启，但我们只需要接收完成中断）
 	__HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);
 	
-	//Set_PWM_duty();
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, 2000);
-        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, 2000);
-        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_3, 2000);
-        __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, 2000);
-        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, 2000);
-        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, 2000);
-        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, 2000);
-        HAL_Delay(1000);
+	  if (Flag)	  
+	  {        	
+		uint32_t tempdata = SetSepeedTarget();
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, SetSepeedTarget());
+		Flag = 0x00;
+	  }	
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
