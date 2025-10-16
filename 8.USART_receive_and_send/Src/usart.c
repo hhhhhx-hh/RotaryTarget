@@ -269,7 +269,12 @@ static void ParsData(void)
 	
 	{
 		float tem = 000.0f;
-		if (FlagBit == 3)
+		if (FlagBit == 2)
+		{
+			SpeedTarget = (message[1] - 0x30) * 10 + (message[3] - 0x30) * 1; 
+			SpeedTarget = SpeedTarget / 1000.0f * 2000;
+		}
+		else if (FlagBit == 3)
 		{
 			SpeedTarget = (message[1] - 0x30) * 100 + (message[2] - 0x30) * 10 + (message[4] - 0x30) * 1; 
 			SpeedTarget = SpeedTarget / 1000.0f * 2000;
@@ -297,14 +302,15 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 		if (message[0] == 0x3A)
 		{
 
-		if ((message[3] == 0x2E) || (message[4] == 0x2E))
-		{
-			if (message[3] == 0x2E){FlagBit = 3;}
-			else {FlagBit = 4;}
-			HAL_UART_Transmit_DMA(&huart1, (uint8_t *)RxFlag, sizeof(RxFlag));
-			
-			ParsData();
-		}
+			if ((message[2] == 0x2E) || (message[3] == 0x2E) || (message[4] == 0x2E))
+			{
+				if (message[2] == 0x2E){FlagBit = 2;}
+				else if (message[3] == 0x2E){FlagBit = 3;}
+				else {FlagBit = 4;}
+				HAL_UART_Transmit_DMA(&huart1, (uint8_t *)RxFlag, sizeof(RxFlag));
+				
+				ParsData();
+			}
 		
         HAL_UARTEx_ReceiveToIdle_DMA(&huart1, message, Size);
         __HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);
