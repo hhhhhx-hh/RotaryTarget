@@ -144,6 +144,7 @@ int main(void)
 	  {        	
 		uint32_t tempdata = SetSepeedTarget();
 		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, SetSepeedTarget());
+    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, 10*SetSepeedTarget());
 		Flag = 0x00;
 	  }	
 
