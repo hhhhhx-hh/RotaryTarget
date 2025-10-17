@@ -284,7 +284,7 @@ static void ParsData(void)
 			SpeedTarget = 2000;
 		}
 		SpeedTarget = SpeedTarget > 2000 ? 2000 : SpeedTarget;
-		SpeedTarget = SpeedTarget < (-2) ? -2 : SpeedTarget;
+		SpeedTarget = SpeedTarget < (400) ? 400 : SpeedTarget;
 		
 	}	
 }
